@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -38,12 +49,14 @@ var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
 var Parser = require("rss-parser");
 var express = require("express");
-var p = new Parser();
-var getRSSFeeed = function (team) { return __awaiter(_this, void 0, void 0, function () {
-    var feed, e_1;
+var axios = require("axios");
+var cheerio = require("cheerio");
+var getRSSFeed = function (team) { return __awaiter(_this, void 0, void 0, function () {
+    var p, feed, e_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
+                p = new Parser();
                 feed = null;
                 if (!!team) return [3 /*break*/, 2];
                 return [4 /*yield*/, p.parseURL("https://www.calciomercato.com/feed")];
@@ -64,30 +77,116 @@ var getRSSFeeed = function (team) { return __awaiter(_this, void 0, void 0, func
         }
     });
 }); };
+var getArticleImage = function (link) { return __awaiter(_this, void 0, void 0, function () {
+    var HTML, $, IMG_LINK;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, axios.get(link)];
+            case 1:
+                HTML = _a.sent();
+                HTML = HTML.data;
+                $ = cheerio.load(HTML);
+                IMG_LINK = $("#article-header__picture").attr("src");
+                return [2 /*return*/, IMG_LINK];
+        }
+    });
+}); };
+var getArticleContent = function (link) { return __awaiter(_this, void 0, void 0, function () {
+    var HTML, $, articleContent;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, axios.get(link)];
+            case 1:
+                HTML = _a.sent();
+                HTML = HTML.data;
+                $ = cheerio.load(HTML);
+                articleContent = $("#article-body").text();
+                return [2 /*return*/, articleContent];
+        }
+    });
+}); };
+var addImageToList = function (_a) {
+    var items = _a.items;
+    return __awaiter(_this, void 0, void 0, function () {
+        var newArray;
+        var _this = this;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0: return [4 /*yield*/, Promise.all(items.map(function (item) { return __awaiter(_this, void 0, void 0, function () {
+                        var IMG_URL;
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0: return [4 /*yield*/, getArticleImage(item.link)];
+                                case 1:
+                                    IMG_URL = _a.sent();
+                                    return [2 /*return*/, __assign({}, item, { img_url: IMG_URL })];
+                            }
+                        });
+                    }); }))];
+                case 1:
+                    newArray = _b.sent();
+                    return [4 /*yield*/, newArray];
+                case 2: return [2 /*return*/, _b.sent()];
+            }
+        });
+    });
+};
 var app = express();
 app.get("/all", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-    var _a, _b;
+    var articleList, articleListIMG, _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
-            case 0:
-                _b = (_a = res).send;
-                return [4 /*yield*/, getRSSFeeed()];
+            case 0: return [4 /*yield*/, getRSSFeed()];
             case 1:
+                articleList = _c.sent();
+                return [4 /*yield*/, addImageToList(articleList)];
+            case 2:
+                articleListIMG = _c.sent();
+                _b = (_a = res).send;
+                return [4 /*yield*/, articleListIMG];
+            case 3:
                 _b.apply(_a, [_c.sent()]);
                 return [2 /*return*/];
         }
     });
 }); });
 app.get("/teams/:team", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-    var team, _a, _b;
+    var team, articleList, articleListIMG, _a, _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
                 team = req.params.team;
-                _b = (_a = res).send;
-                return [4 /*yield*/, getRSSFeeed(team)];
+                return [4 /*yield*/, getRSSFeed(team)];
             case 1:
+                articleList = _c.sent();
+                return [4 /*yield*/, addImageToList(articleList)];
+            case 2:
+                articleListIMG = _c.sent();
+                _b = (_a = res).send;
+                return [4 /*yield*/, articleListIMG];
+            case 3:
                 _b.apply(_a, [_c.sent()]);
+                return [2 /*return*/];
+        }
+    });
+}); });
+app.get("/articles", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+    var link, article, _a;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                link = req.query.link;
+                if (!link)
+                    res.sendStatus(404);
+                _a = {};
+                return [4 /*yield*/, getArticleContent(link)];
+            case 1:
+                _a.content = _b.sent();
+                return [4 /*yield*/, getArticleImage(link)];
+            case 2:
+                article = (_a.img_url = _b.sent(),
+                    _a);
+                res.send(article);
                 return [2 /*return*/];
         }
     });
