@@ -2,6 +2,7 @@ import Parser = require("rss-parser");
 import express = require("express");
 const axios = require("axios");
 import cheerio = require("cheerio");
+const cors = require("cors");
 
 const getRSSFeed = async (team?: string) => {
   const p: Parser = new Parser();
@@ -47,6 +48,7 @@ const addImageToList = async ({ items }: any) => {
 };
 
 const app: express.Application = express();
+app.use(cors());
 
 app.get("/all", async (req, res) => {
   let articleList = await getRSSFeed();

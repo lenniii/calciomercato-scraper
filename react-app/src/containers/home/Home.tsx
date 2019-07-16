@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import NavBar from "./components/navbar/navbar";
-import TeamBadge from "./components/teamBadge/teamBadge";
-import { teamsList } from "./helpers/teams";
+import NavBar from "../../components/navbar/navbar";
+import TeamBadge from "../../components/teamBadge/teamBadge";
+import { teamsList } from "../../helpers/teams";
+import { Link } from "react-router-dom";
 
 const Home: React.FC = () => {
   const [filterValue, setFilterValue] = useState("");
@@ -21,6 +22,7 @@ const Home: React.FC = () => {
       <NavBar
         filterValue={filterValue}
         handleFilterChange={handleFilterChange}
+        showFilter
       />
       <div className="container ">
         {!filterValue
@@ -33,7 +35,11 @@ const Home: React.FC = () => {
 
 const renderTeamBadges = (teamsList: string[]) => {
   return teamsList.map((team: string, i: number) => {
-    return <TeamBadge team={team} key={i} />;
+    return (
+      <Link to={`/${team}`}>
+        <TeamBadge team={team} key={i} />
+      </Link>
+    );
   });
 };
 

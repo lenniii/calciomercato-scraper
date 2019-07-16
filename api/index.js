@@ -51,6 +51,7 @@ var Parser = require("rss-parser");
 var express = require("express");
 var axios = require("axios");
 var cheerio = require("cheerio");
+var cors = require("cors");
 var getRSSFeed = function (team) { return __awaiter(_this, void 0, void 0, function () {
     var p, feed, e_1;
     return __generator(this, function (_a) {
@@ -132,6 +133,7 @@ var addImageToList = function (_a) {
     });
 };
 var app = express();
+app.use(cors());
 app.get("/all", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
     var articleList, articleListIMG, _a, _b;
     return __generator(this, function (_c) {
