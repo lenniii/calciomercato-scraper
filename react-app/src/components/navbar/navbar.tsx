@@ -1,5 +1,6 @@
 import React from "react";
 import styles from "./navbar.module.css";
+import { Link } from "react-router-dom";
 
 const NavBar: React.FC<IProps> = ({
   filterValue,
@@ -22,7 +23,7 @@ const NavBar: React.FC<IProps> = ({
       ) : null}
       <span>
         <h1>
-          <a href="/">Home</a>
+          <Link to="/">Home</Link>
         </h1>
       </span>
     </nav>

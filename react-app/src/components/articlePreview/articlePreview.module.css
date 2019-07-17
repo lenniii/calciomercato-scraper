@@ -1,0 +1,20 @@
+.container {
+  width: 85%;
+  margin: auto;
+  margin-top: 15px;
+  height: 200px;
+  background-size: cover;
+  background-repeat: no-repeat;
+  justify-items: center;
+  position: relative;
+}
+
+.description {
+  background: #757de8;
+  bottom: 0px;
+  width: 100%;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  height: 20%;
+}
